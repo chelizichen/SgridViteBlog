@@ -18,7 +18,7 @@ export default defineConfig({
         {
           text: 'Deploy',
           items: [
-            { text: 'Intro', link: '/src/sgrid/' },
+            { text: 'Document', link: '/src/sgrid/' },
             { text: 'Api Examples', link: '/src/sgrid/api-examples.md' },
           ]
         }

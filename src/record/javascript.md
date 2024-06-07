@@ -1,6 +1,147 @@
 # JavaScript 相关
 
-日常JavaScript、TypeScript使用的一些技巧、NodeJs的一些优化。
+日常JavaScript、TypeScript使用的一些技巧、NodeJs的一些优化,同时包含 Sgrid For Node.
+
+## Sgird For Node
+
+SgridNode 与 Express进行绑定，并且提供了一些装饰器作为简便开发的方式。
+
+首先定义配置文件 sgrid.yml
+
+````yml
+server:
+  name: SgridViteBlog
+  host: 127.0.0.1
+  port: 15425
+  protoccol: http
+  language: node
+config:
+  db_master:  root:123456@tcp(127.0.0.1:3306)/sgrid?charset=utf8&parseTime=true
+  db_slave: root:123456@tcp(127.0.0.1:3306)/sgrid?charset=utf8&parseTime=true
+````
+
+然后定义初始化文件 app.ts 然后在内部定义一些逻辑
+
+SpaFile 为处理静态资源的函数（如果项目中不需要托管静态资源，可忽略）需要返回一个长度为2的字符串数组 **[string,string]**，第一项为 请求路径，第二项为资源所在的路径。
+FrameworkController 为控制层，与Java相同，使用装饰器进行路由的注册。
+
+**app.ts**
+````ts
+import { NewSgridServer, NewSgridServerCtx } from "sgridnode/build/main";
+import { FrameworkController } from "./src";
+import { SpaFile } from "./src/interceptor/static";
+function boost() {
+  const ctx = NewSgridServerCtx();
+  new SpaFile().use(ctx);
+  const f = new FrameworkController(ctx);
+  ctx.use("/api", f.router);
+  NewSgridServer(ctx);
+}
+boost();
+````
+
+**framework.controller.ts**
+````ts
+import {
+  Controller,
+  Get,
+  Autowired,
+  Value,
+  WithErrorHandler,
+  Resp,
+} from "sgridnode/build/main";
+import { Request, Response, Express, Router } from "express";
+import { FrameworkService } from "./framework.service";
+import loggerComponent from "../components/logger";
+import { Handler } from "../interceptor/error";
+
+@Controller("/framework")
+class FrameworkController {
+  public ctx: Express;
+  public router: Router | undefined;
+
+  @Autowired(loggerComponent) logger: loggerComponent;
+  @Autowired(FrameworkService) frameworkService: FrameworkService;
+
+  @Value("server.name") serverName: string;
+
+  constructor(ctx: Express) {
+    this.ctx = ctx;
+  }
+
+  @Get("/hello")
+  @WithErrorHandler(Handler)
+  async hello(req: Request, res: Response) {
+    this.logger.data("req.url ", req.url);
+    return Resp.Ok(
+      this.serverName + " :: hello ::" + this.frameworkService.greet()
+    );
+  }
+
+  @Get("/error")
+  @WithErrorHandler(Handler)
+  async errorTest(req: Request, res: Response) {
+    this.logger.data("req.url ", req.url);
+    return Resp.Ok(
+      this.serverName + " :: hello ::" + this.frameworkService.createError()
+    );
+  }
+}
+
+export { FrameworkController };
+````
+
+**framework.service.ts**
+````ts
+import { Autowired, Component } from "sgridnode/build/main";
+import loggerComponent from "../components/logger";
+
+@Component()
+export class FrameworkService {
+  @Autowired(loggerComponent) logger: loggerComponent;
+
+  constructor() {
+    console.log("framework service init");
+  }
+
+  msg = "greet";
+
+  greet() {
+    // this.createError();
+    this.logger.data("data :: ", this.msg);
+    return this.msg;
+  }
+
+  createError() {
+    throw new Error("framework service error");
+  }
+}
+````
+
+打包脚本
+
+**build.sh**
+````sh
+#!/bin/bash  
+
+readonly ServerName="SgridViteBlog"
+
+rm ./$ServerName.tar.gz
+
+npm run build
+
+cp ./sgrid.yml ./build/
+cp package.json ./build/
+cp package-lock.json ./build/
+cp -r dist ./build/
+
+cd build 
+npm i --production
+
+tar -cvf $ServerName.tar.gz ./*
+
+mv $ServerName.tar.gz ../
+````
 
 ## TypeScript DTO Pojo Vo 的转换
 
