@@ -1,0 +1,11 @@
+.vitepress/cache
+
+.vitepress/dist
+
+node_modules
+
+static/node_modules
+
+static/build
+
+static/dist
