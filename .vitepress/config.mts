@@ -11,6 +11,7 @@ export default defineConfig({
       { text: 'Home', link: '/' },
       { text: 'SgridCloud', link: '/src/sgrid/index.md' },
       { text: 'DevRecords', link: '/src/record/index.md' },
+      { text: '蛋挞制作',link:"/src/danta/index.md"}
     ],
 
     sidebar:{
