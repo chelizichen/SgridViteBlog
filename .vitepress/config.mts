@@ -2,7 +2,7 @@ import { defineConfig } from 'vitepress'
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-  title: "SgridBlog",
+  title: "SgridCloud",
   description: "blog for sgridcloud",
   base:"/docs/",
   themeConfig: {
@@ -27,12 +27,13 @@ export default defineConfig({
         {
           text: 'Dev Records',
           items: [
-            { text: 'Intro', link: '/src/record/' },
+            { text: 'Intro', link: '/src/record/index.md' },
             { text: 'Records', link: '/src/record/markdown-examples.md' },
             { text: 'Java', link: '/src/record/java.md' },
             { text: 'Golang', link: '/src/record/golang.md' },
             { text: 'JavaScript', link: '/src/record/javascript.md' },
             { text: 'Mysql', link: '/src/record/mysql.md' },
+            { text: 'Rbac', link: '/src/record/rbac.md' },
           ]
         }
       ],

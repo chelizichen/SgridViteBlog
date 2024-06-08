@@ -227,7 +227,27 @@ mvn deploy
 tar -cvf $ServerName.tar.gz ./target
 ````
 
-## Custom Containers
+## Maven jdbc与Mysql的坑
+
+mysql5.x 常用 useSSL
+在 mysql 8 中， 使用 jdbc:mysql://localhost:3306/test_db?setUnicode=true&characterEncoding=utf8 即可
+同时jdbc 包也需要修改成8 与 mysql 对应
+
+## Lombok 依赖的坑
+
+Lombok某些情况下不指定版本会出现打包异常
+ **com.sun.tools.javac.code.TypeTags** ,
+ 关键错误信息
+ **Illegal reflective access by lombok.javac.apt.LombokProcessor to field com.sun.tools.javac.processing.JavacProcessingEnvironment.discoveredProcs**
+ 此时需要确定Lombok可以编译的版本，然后修改pom.xml文件
+
+````xml
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.20</version>
+        </dependency>
+````
 
 **Input**
 
