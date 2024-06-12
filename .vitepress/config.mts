@@ -12,6 +12,7 @@ export default defineConfig({
       { text: "SgridCloud", link: "/src/sgrid/index.md" },
       { text: "DevRecords", link: "/src/record/index.md" },
       { text: "Food", link: "/src/food/index.md" },
+      { text: "Trade", link: "/src/trade/index.md" },
     ],
 
     sidebar: {
@@ -48,6 +49,14 @@ export default defineConfig({
           ],
         },
       ],
+      "/src/trade/":[
+        {
+          text: "Trade",
+          items: [
+            { text: "Intro", link: "/src/trade/index.md" },
+          ],
+        },
+      ]
     },
 
     socialLinks: [

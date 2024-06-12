@@ -16,6 +16,9 @@ hero:
     - theme: alt
       text: Food
       link: /src/food/index.md
+    - theme: alt
+      text: Trade
+      link: /src/trade/index.md
 features:
   - title: 配置中心
     details: 采用数据库存储配置信息，使用环境变量注入的方式对应用进行配置
