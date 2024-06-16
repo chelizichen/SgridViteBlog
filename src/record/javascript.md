@@ -472,3 +472,60 @@ module.exports = {
     loadWebpackDev
 }
 ````
+
+## Vue Element-Table 表格合并问题
+
+需求： 将第一列多个重复的行合并成一个
+
+::: danger
+文档介绍的并不详细，CSDN上的文章也并没有贴出对应的解决逻辑。
+:::
+
+columnIndex 代表列索引，0 为第一列。需求是对第一列进行合并，所以 使用 **if (columnIndex === 0)** 来进行判断。
+
+之后通过行数进行判断，比如前三行要的第一列要进行合并。就使用  **if (rowIndex <= 2)** 进行判断，然后**选择合并的行数和列数**。比如要合并三行，就返回 **rowspan:3**，返回 **rowspan:0,colspan:0** 代表该行已经被合并了，**所以才不显示**。如果不是第一列，则直接返回 **rowspan: 1, colspan: 1** 代表不合并。
+
+````js
+  objectSpanMethod({ row, column, rowIndex, columnIndex }) {
+    if (columnIndex === 0) {
+      if (rowIndex <= 2) {
+        if (rowIndex == 0) {
+          return {
+            rowspan: 3, //合并的行数
+            colspan: 1, //合并的列数，设为０则直接不显示
+          };
+        }
+        return {
+          rowspan: 0, //合并的行数
+          colspan: 0, //合并的列数，设为０则直接不显示
+        };
+      }
+      if (rowIndex > 2 && rowIndex <= 4) {
+        if (rowIndex == 3) {
+          return {
+            rowspan: 2, //合并的行数
+            colspan: 1, //合并的列数，设为０则直接不显示
+          };
+        }
+        return {
+          rowspan: 0, //合并的行数
+          colspan: 0, //合并的列数，设为０则直接不显示
+        };
+      }
+      if (rowIndex > 4) {
+        if (rowIndex == 5) {
+          return {
+            rowspan: 4, //合并的行数
+            colspan: 1, //合并的列数，设为０则直接不显示
+          };
+        }
+        return {
+          rowspan: 0, //合并的行数
+          colspan: 0, //合并的列数，设为０则直接不显示
+        };
+      }
+    } else {
+      return { rowspan: 1, colspan: 1 };
+    }
+  },
+````
