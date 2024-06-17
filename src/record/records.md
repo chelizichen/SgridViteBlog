@@ -24,3 +24,27 @@
 3. 父子组件通信，如果是多层，且子组件依赖上游状态较多的情况下，需要使用状态管理工具（pinia）
 4. 数据源最好只有一种，其他的使用 computed进行计算
 5. vue3 目前支持 类似 react hook的写法,也可以通过hook来进行状态共享  **const data = ref(0); function setData(val){}  return [data,setData]**
+
+## Vue3 Hooks 最佳实践
+
+::: tip
+
+1. 解决reset函数导致的大量重复代码的问题
+2. 解决统一状态管理的问题
+3. 解决逻辑复杂，且不能共用的问题
+:::
+
+代码如下，不过切记不要乱用，以免造成维护困难
+
+````ts
+const useDataStore = defineStore('useDataStore',()=>{
+  const initData = {
+    key:'',
+    value:''
+  }
+  const data = ref(_.cloneDeep(initData))
+  const resetData = ()=> data.value = _.cloneDeep(initData)
+  const setData = (body:any)=> data.value = body;
+  return {data,resetData,setData}
+})
+````
