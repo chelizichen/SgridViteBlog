@@ -30,6 +30,7 @@ export default defineConfig({
           text: "Dev Records",
           items: [
             { text: "Intro", link: "/src/record/index.md" },
+            { text: "Linux", link: "/src/record/linux.md" },
             { text: "Best Dev Style", link: "/src/record/records.md" },
             { text: "Java", link: "/src/record/java.md" },
             { text: "Golang", link: "/src/record/golang.md" },
