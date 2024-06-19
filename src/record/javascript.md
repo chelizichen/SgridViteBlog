@@ -529,3 +529,19 @@ columnIndex 代表列索引，0 为第一列。需求是对第一列进行合并
     }
   },
 ````
+
+## Lodash
+
+### orderBy
+
+::: tip
+常见的需求是App列表接口 根据 数量、创建时间来进行倒序筛选
+::
+
+````js
+def func orderBy(list,sortArgs,sortType);
+
+sortArgs like ['age','status']
+
+sortType like ['desc','asc']
+````
