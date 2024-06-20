@@ -37,6 +37,15 @@ alter table grid_stat_log add index idx_grid_id_create_time(grid_id, create_time
 10 行已获取 - 63ms, 2024-06-07 14:57:12
 ```
 
+## 死锁 以及解决方法
+
+![死锁造成的原因](../../images/mysql/dead-lock.png)
+
+在批量处理数据时，需要考虑使用事物保证一致性，但是在多节点的定时同步任务里，如果没加锁，导致多个节点同时访问一个资源，可能会存在死锁。
+
+## MVCC 是什么？
+
+
 ## GORM最佳实践
 
 ### 定义实体
