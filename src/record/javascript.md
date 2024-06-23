@@ -473,7 +473,9 @@ module.exports = {
 }
 ````
 
-## Vue Element-Table 表格合并问题
+## Vue系列
+
+### Element-Table 表格合并问题
 
 需求： 将第一列多个重复的行合并成一个
 
@@ -528,6 +530,20 @@ columnIndex 代表列索引，0 为第一列。需求是对第一列进行合并
       return { rowspan: 1, colspan: 1 };
     }
   },
+````
+
+### Element-Image 图片预览
+
+````js
+<el-image
+  :src="url"
+  :zoom-rate="1.2"
+  :max-scale="7"
+  :min-scale="0.2"
+  :initial-index="4"
+  :preview-src-list="[url]"
+  fit="cover"
+/>
 ````
 
 ## Lodash
