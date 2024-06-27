@@ -546,6 +546,64 @@ columnIndex 代表列索引，0 为第一列。需求是对第一列进行合并
 />
 ````
 
+### Element-Table 多选问题
+
+::: danger
+需要根据具体需求来写代码，但一般都是这样实现的
+:::
+
+分页情况下表格多选的解决方案
+
+1. 全选时 **ids** 全部添加并且去重，全不选时从 **list** 里面拿，并过滤已经存在的
+2. 单选时判断有没有，如果有则过滤掉，没有则添加
+3. 每次分页请求后都需要执行 **toggleSelect** 来高亮已选择的
+
+````js
+<el-table
+  border
+  :data="visible.personList"
+  @select="handlePersonSelectionChange"
+  @select-all="handlePersonSelectionAllChange"
+  ref="personTableRef"
+  >
+</el-table>
+
+// js
+handlePersonSelectionChange(_, row) {
+  const vm = this;
+  const item = vm.visible.selectPersonIds.find((v) => v == row.id);
+  if (item) {
+    vm.visible.selectPersonIds = vm.visible.selectPersonIds.filter(
+      (v) => Number(v) != Number(row.id)
+    );
+  } else {
+    vm.visible.selectPersonIds.push(row.id);
+  }
+},
+handlePersonSelectionAllChange(selection) {
+  const vm = this;
+  if (selection.length) {
+    vm.visible.selectPersonIds.push(selection.map((v) => v.id));
+    vm.visible.selectPersonIds = Array.from(new Set(vm.visible.selectPersonIds));
+  } else {
+    vm.visible.selectPersonIds = vm.visible.selectPersonIds.filter(
+      (v) => !vm.visible.personList.find((t) => t.id === v)
+    );
+  }
+},
+toggleSelect() {
+  const vm = this;
+  vm.$nextTick(() => {
+    vm.visible.selectPersonIds.forEach((id) => {
+      const item = vm.visible.personList.find((v) => v.id === id);
+      if (!item) return;
+      vm.$refs.personTableRef.toggleRowSelection(item);
+    });
+  });
+},
+
+````
+
 ## Lodash
 
 ### orderBy
