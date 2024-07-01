@@ -10,13 +10,34 @@ SpringBoot  系列 Sgrid For SpringBoot,与一些日常问题
 并且创建三个文件,其中 **SgridConfInterface** 为接口，里面数据库的配置可以不用做。但是得有，配置后 **SpringBoot** 会自动加载。
 
 - framework
+  - EnableSgridServer.java
   - Server.java
+  - ServletContainer.java
   - SgridConf.java
-  - SgridConfInterface.java
+
+**EnableSgridServer.java**
+
+````java
+package com.sgrid.app.framework;
+import org.springframework.context.annotation.Import;
+import java.lang.annotation.Target;
+import java.lang.annotation.Retention;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.RetentionPolicy;
+
+@Target({ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+@Import(SgridConf.class)
+public @interface EnableSgridServer {
+    
+}
+````
 
 **Server.java**
 
 ````java
+package com.sgrid.app.framework;
+
 public class Server {
     public Integer port;
     public String name;
@@ -63,12 +84,22 @@ public class Server {
     public void setLanguage(String language) {
         this.language = language;
     }
+
+    @Override
+    public String toString() {
+        return "Server [port=" + port + ", name=" + name + ", host=" + host + ", protocol=" + protocol + ", language="
+                + language + "]";
+    }
 }
+
 ````
 
 **SgridConf.java**
 
-```java
+````java
+package com.sgrid.app.framework;
+
+import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
@@ -79,24 +110,38 @@ import java.io.IOException;
 import java.util.HashMap;
 
 @Component
-public class SgridConf implements SgridConfInterface {
+public class SgridConf {
+
+    private boolean isConfigured = false; // 标志位，表示配置是否已被设置
     private final static String SGRID_TARGET_PORT = "SGRID_TARGET_PORT";
     private final static String SGRID_DEV_CONF = "sgrid.yml";
     private final static String SGRID_CONFIG = "SGRID_CONFIG";
     private final static String SGRID_PROCESS_INDEX = "SGRID_PROCESS_INDEX";
+
     public Server server;
     public HashMap<String, String> config = new HashMap<>();
-    private boolean isConfigured = false; // 标志位，表示配置是否已被设置
 
     @PostConstruct
     public void init() {
         if (!isConfigured) {
-            this.SetSgridConf();
-            this.SetDBProperty(config.get("mysql-addr"), config.get("mysql-username"), config.get("mysql-password"));
             isConfigured = true; // 设置标志位，表示配置已完成
+            // 这一步必须要执行
+            this.SetSgridConf();
+            // 这一步选执行，只是提供参考设置的样例代码 ！
+            this.SetDBProperty(config.get("mysql-addr"), config.get("mysql-username"), config.get("mysql-password"));
         }
     }
 
+    @Bean
+    public ServletContainer servletContainer() {
+        System.out.println("[Sgrid-Java] [info] init servletContainer ");
+        return new ServletContainer();
+    }
+
+    @Override
+    public String toString() {
+        return "SgridConf [server=" + server + ", config=" + config + ", isConfigured=" + isConfigured + "]";
+    }
 
     private SgridConf loadDevConf(Resource resource) throws IOException {
         Yaml yaml = new Yaml();
@@ -108,35 +153,29 @@ public class SgridConf implements SgridConfInterface {
         return yaml.loadAs(yamlContent, SgridConf.class);
     }
 
-    @Override
     public void SetDBProperty(String url, String username, String password) {
         System.setProperty("spring.datasource.url", url);
         System.setProperty("spring.datasource.username", username);
         System.setProperty("spring.datasource.password", password);
     }
 
-    @Override
     public void SetSgridConf() {
         try {
             String sgridProdConf = System.getenv(SGRID_CONFIG);
             String sgridTargetPort = System.getenv(SGRID_TARGET_PORT);
-            if (sgridProdConf == null || sgridProdConf.isEmpty()) {
-                System.out.println("run dev ::  " + SGRID_DEV_CONF);
+            if (sgridProdConf == null || sgridProdConf.isEmpty()) { // 测试环境下
                 Resource resource = new ClassPathResource(SGRID_DEV_CONF);
                 SgridConf sgridConf = loadDevConf(resource);
                 setServer(sgridConf.server);
                 setConfig(sgridConf.config);
-                System.out.println("server :: " + server);
-                System.out.println("config :: " + config);
-            } else {
-                System.out.println("run prod :: " + sgridProdConf);
+            } else {    // 生产环境下 有配置 需要将 PORT 塞到 server.config中
                 SgridConf sgridConf = loadProdConf(sgridProdConf);
                 setServer(sgridConf.server);
                 setConfig(sgridConf.config);
                 server.setPort(Integer.valueOf(sgridTargetPort));
             }
         } catch (Exception e) {
-            System.out.println("Init Sgrid Configuration Error :: " + e);
+            System.err.println("[Sgrid-Java] [error] Error Init SetSgridConf "+e);
         }
     }
 
@@ -147,6 +186,8 @@ public class SgridConf implements SgridConfInterface {
     public void setConfig(HashMap<String, String> config) {
         this.config = config;
     }
+
+
     public boolean threadLock(){
         String sgridProdConf = System.getenv(SGRID_CONFIG);
         if(sgridProdConf.isEmpty()){
@@ -154,21 +195,50 @@ public class SgridConf implements SgridConfInterface {
         }
         return true;
     }
+
 }
+````
 
-```
 
-**SgridConfInterface.java**
+**ServletContainer.java**
 
 ````java
-public interface SgridConfInterface {
-    // must be called
-    // set db conn
-    void SetDBProperty(String url, String username, String password);
+package com.sgrid.app.framework;
 
-    void SetSgridConf();
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.server.WebServerFactoryCustomizer;
+import org.springframework.boot.web.servlet.server.ConfigurableServletWebServerFactory;
+
+public class ServletContainer implements WebServerFactoryCustomizer<ConfigurableServletWebServerFactory>{
+
+    @Autowired
+    private SgridConf sgridConf;
+
+    @Override
+    public void customize(ConfigurableServletWebServerFactory factory) {
+        int port = 8080;
+        String host = null;
+        if(sgridConf.server.port != null){
+            port = sgridConf.server.port;
+        }
+        factory.setPort(port);
+
+        if(sgridConf.server.host != null){
+            host = sgridConf.server.host;
+        }
+        try {
+            factory.setAddress(InetAddress.getByName(host));
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+        System.out.println(String.format("[Sgrid-Java] [info] sgridConf [%s]",sgridConf));
+        System.out.println("[Sgrid-Java] [info] End Init Sgrid servletContainer ");
+    }
+    
 }
-
 ````
 
 然后配置 sgrid.yml 文件，作为Dev环境下的配置文件
@@ -190,25 +260,23 @@ config:
 
 ````
 
-然后在主入口进行修改
+然后在主入口进行修改,添加 EnableSgridServer 注解
 
 **Main.java**
 
 ````java
+package com.sgrid.app;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import com.sgrid.app.framework.EnableSgridServer;
+
 @SpringBootApplication
-public class MainServer {
-    @Autowired
-    private SgridConf config;
+@EnableSgridServer
+public class SgridApplication {
+
     public static void main(String[] args) {
-        SpringApplication.run(MainServer.class, args);
-    }
-    @Bean
-    public TomcatServletWebServerFactory servletContainer() {
-        return new TomcatServletWebServerFactory(config.server.port);
-    }
-    public void run(String... args) throws Exception {
-        System.out.println("Server: " + config);
-        System.out.println("Server: " + config.server.port);
+        SpringApplication.run(SgridApplication.class, args);
     }
 }
 ````
