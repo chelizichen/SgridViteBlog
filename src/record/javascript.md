@@ -2,6 +2,16 @@
 
 日常JavaScript、TypeScript使用的一些技巧、NodeJs的一些优化,同时包含 Sgrid For Node.
 
+## Sgrid For Vite
+
+[演示地址](http://47.98.174.10:13693/es-big-screen/#/screen)
+
+使用该命令行快速发布 vite服务到 sgridcloud 平台上
+
+````sh
+sgrid release:vite -s ESBigScreenServer -d dist  -p /es-big-screen
+````
+
 ## Sgird For Node
 
 SgridNode 与 Express进行绑定，并且提供了一些装饰器作为简便开发的方式。
