@@ -48,3 +48,42 @@ const useDataStore = defineStore('useDataStore',()=>{
   return {data,resetData,setData}
 })
 ````
+
+## AES加密与解密
+
+````js
+const CryptoJS = require('crypto-js');
+const KEY = 'sgrid.app';
+const IV = 'chelizichen';
+
+function decryptAES(encrypted) {
+  encrypted = decodeURIComponent(decodeURIComponent(encrypted));
+  let key = CryptoJS.enc.Utf8.parse(KEY);
+  let iv = CryptoJS.enc.Utf8.parse(IV);
+  const decrypted = CryptoJS.AES.decrypt(encrypted, key, {
+    iv: iv,
+    mode: CryptoJS.mode.CBC,
+    padding: CryptoJS.pad.Pkcs7
+  });
+  return decrypted.toString(CryptoJS.enc.Utf8);
+}
+
+function encryptASE(str) {
+  let key = CryptoJS.enc.Utf8.parse(KEY);
+  let iv = CryptoJS.enc.Utf8.parse(IV);
+  const rs = CryptoJS.AES.encrypt(str, key, {
+    iv: iv,
+    mode: CryptoJS.mode.CBC,
+    padding: CryptoJS.pad.Pkcs7
+  });
+  return rs;
+}
+
+function test(){
+
+  let str = '{"name":"test","age":18}';
+  let enc = encryptASE(str)
+  let dec = decryptASE(enc)
+  
+}
+````
