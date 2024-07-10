@@ -614,6 +614,47 @@ toggleSelect() {
 
 ````
 
+### Element-Table 表头自定义渲染
+
+用于自定义渲染，使用 h 方法进行手写 dom 结构树
+
+````js
+ renderColumnAdminUser(h) {
+   return h(
+     "el-popover",
+     {
+       props: {
+         title: "提示",
+         width: "200",
+         trigger: "hover",
+         content: "自定义提示内容",
+       },
+     },
+     [
+       h(
+         "div",
+         {
+           slot: "reference",
+         },
+         [
+           h("span", "自定义表头内容"),
+           h("el-button", {
+             props: {
+               type: "text",
+               icon: "el-icon-question",
+               size: "mini",
+             },
+             style: {
+               color: "black",
+             },
+           }),
+         ]
+       ),
+     ]
+   );
+ },
+````
+
 ## Lodash
 
 ### orderBy
