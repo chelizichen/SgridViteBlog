@@ -655,6 +655,20 @@ toggleSelect() {
  },
 ````
 
+### Element-Form  ResetForm
+
+适用于Vue2,将表单重置
+
+````js
+function resetForm(refName) {
+  if (this.$refs[refName]) {
+    this.$refs[refName].resetFields();
+  }
+}
+Vue.prototype.resetForm = resetForm;
+````
+
+
 ## Lodash
 
 ### orderBy
