@@ -122,3 +122,11 @@ func (o *O_Dresser) Upsert(dto *O_Dresser) {
 }
 
 ````
+
+## MYSQL Errors
+
+### Can't connect to local MySQL
+
+Error: Can't connect to local MySQL server through socket '/var/lib /mysql/mysql.sock'
+
+Solve: https://blog.csdn.net/qq_43854669/article/details/129284602
