@@ -37,6 +37,7 @@ export default defineConfig({
             { text: "JavaScript", link: "/src/record/javascript.md" },
             { text: "Mysql", link: "/src/record/mysql.md" },
             { text: "Rbac", link: "/src/record/rbac.md" },
+            { text: "C", link: "/src/record/c.md" },
           ],
         },
       ],
