@@ -679,7 +679,7 @@ Vue.prototype.resetForm = resetForm;
 
 ::: tip
 常见的需求是App列表接口 根据 数量、创建时间来进行倒序筛选
-::
+:::
 
 ````js
 def func orderBy(list,sortArgs,sortType);
@@ -687,4 +687,21 @@ def func orderBy(list,sortArgs,sortType);
 sortArgs like ['age','status']
 
 sortType like ['desc','asc']
+````
+
+## 企微判断
+
+判断入口是不是企微，如果不是，则直接白屏
+
+````js
+const isWxWork = ref(true)
+onMounted(()=>{
+  if(Number(import.meta.env.VITE_IS_LIMIT_WX_WORK)){
+    const useragend = navigator.userAgent.toLowerCase()
+    if(useragend.match(/wxwork/) == null  ){
+      isWxWork.value = false
+      return
+    }
+  }
+})
 ````
